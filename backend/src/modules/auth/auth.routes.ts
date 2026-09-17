@@ -42,11 +42,12 @@ router.post(
         expiresIn: '7d',
       });
 
-      // Set secure HTTP-only cookie
+      // Set secure cookie with cross-origin support in production
+      const isProduction = config.nodeEnv === 'production';
       res.cookie('auth_token', token, {
         httpOnly: true,
-        secure: config.nodeEnv === 'production',
-        sameSite: 'lax',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -75,7 +76,12 @@ router.get('/me', authenticate, (req: Request, res: Response) => {
 });
 
 router.post('/logout', (req: Request, res: Response) => {
-  res.clearCookie('auth_token');
+  const isProduction = config.nodeEnv === 'production';
+  res.clearCookie('auth_token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  });
   res.json({
     success: true,
     data: {

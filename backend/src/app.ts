@@ -68,8 +68,13 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 // General API rate limiter
 app.use('/api', apiLimiter);
 
-// Health check endpoints
-app.get('/api/v1/health', (_req, res) => {
+// Favicon handler
+app.get('/favicon.ico', (_req, res) => {
+  res.status(204).end();
+});
+
+// Health check endpoints (supports Render health check and all common aliases)
+app.get(['/health', '/api/health', '/api/v1/health'], (_req, res) => {
   res.json({
     success: true,
     data: {

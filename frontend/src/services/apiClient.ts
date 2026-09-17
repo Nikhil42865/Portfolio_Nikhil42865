@@ -15,6 +15,26 @@ class ApiClient {
     (import.meta.env.VITE_API_URL ? (import.meta.env.VITE_API_URL as string).replace(/\/$/, '') : '') +
     '/api/v1';
 
+  private getToken(): string | null {
+    try {
+      return localStorage.getItem('admin_token');
+    } catch {
+      return null;
+    }
+  }
+
+  private setToken(token: string | null) {
+    try {
+      if (token) {
+        localStorage.setItem('admin_token', token);
+      } else {
+        localStorage.removeItem('admin_token');
+      }
+    } catch {
+      // Ignored in SSR or restricted storage environments
+    }
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {
@@ -25,12 +45,22 @@ class ApiClient {
       headers['Content-Type'] = 'application/json';
     }
 
+    // Attach Bearer token for cross-domain auth reliability
+    const token = this.getToken();
+    if (token && !headers['Authorization']) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
       const res = await fetch(url, {
         ...options,
         headers,
         credentials: 'include',
       });
+
+      if (res.status === 401 && endpoint !== '/admin/auth/login') {
+        this.setToken(null);
+      }
 
       const json = await res.json().catch(() => ({
         success: false,
@@ -63,25 +93,26 @@ class ApiClient {
   }
 
   // Public Endpoints
-  async submitProjectRequest(payload: any) {
-    return this.request<{ referenceNumber: string; title: string }>('/project-requests', {
+  async submitProjectRequest(data: any) {
+    return this.request<{ referenceNumber: string; title: string; createdAt: string }>('/project-requests', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(data),
     });
   }
 
-  async submitContactMessage(payload: any) {
-    return this.request<{ id: string; message: string }>('/contact-messages', {
+  async submitContactMessage(data: { name: string; email: string; subject: string; message: string }) {
+    return this.request<{ id: string; message: string }>('/contact/messages', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(data),
     });
   }
 
   async uploadAttachments(files: File[]) {
     const formData = new FormData();
-    for (const file of files) {
+    files.forEach((file) => {
       formData.append('files', file);
-    }
+    });
+
     return this.request<any[]>('/uploads', {
       method: 'POST',
       body: formData,
@@ -90,10 +121,16 @@ class ApiClient {
 
   // Admin Endpoints
   async adminLogin(credentials: { email: string; password: string }) {
-    return this.request<{ user: { email: string; role: string }; token: string }>('/admin/auth/login', {
+    const res = await this.request<{ user: { email: string; role: string }; token: string }>('/admin/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
+
+    if (res.success && res.data?.token) {
+      this.setToken(res.data.token);
+    }
+
+    return res;
   }
 
   async getAdminSession() {
@@ -101,6 +138,7 @@ class ApiClient {
   }
 
   async adminLogout() {
+    this.setToken(null);
     return this.request('/admin/auth/logout', { method: 'POST' });
   }
 
