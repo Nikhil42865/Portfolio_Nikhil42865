@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { Database } from '../../shared/database';
 import { NotificationService } from '../notifications';
 import { Logger } from '../../shared/logger';
+import { ContactMessageModel } from './contactMessage.model';
 
 export class ContactMessageController {
   static async submitMessage(req: Request, res: Response, next: NextFunction) {
@@ -19,6 +20,12 @@ export class ContactMessageController {
         createdAt: now,
       };
 
+      // 1. Save to MongoDB Atlas if active
+      if (Database.isMongoActive()) {
+        await ContactMessageModel.create(newMsg);
+      }
+
+      // 2. Also save to local JSON backup
       const db = Database.readLocalDb();
       if (!db.contactMessages) db.contactMessages = [];
       db.contactMessages.unshift(newMsg);
@@ -45,6 +52,14 @@ export class ContactMessageController {
 
   static async getMessages(_req: Request, res: Response, next: NextFunction) {
     try {
+      if (Database.isMongoActive()) {
+        const messages = await ContactMessageModel.find().sort({ createdAt: -1 }).lean();
+        return res.json({
+          success: true,
+          data: messages,
+        });
+      }
+
       const db = Database.readLocalDb();
       res.json({
         success: true,

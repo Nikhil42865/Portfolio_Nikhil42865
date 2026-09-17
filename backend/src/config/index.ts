@@ -37,9 +37,13 @@ export const config = {
       'text/plain',
     ],
   },
-  notifications: {
-    resendApiKey: process.env.RESEND_API_KEY || '',
+  smtp: {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '465', 10),
+    secure: process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE === 'true' : true,
+    user: process.env.SMTP_USER || process.env.GOOGLE_EMAIL || '',
+    pass: process.env.SMTP_PASS || process.env.GOOGLE_APP_PASSWORD || '',
+    from: process.env.SMTP_FROM || process.env.SMTP_USER || process.env.GOOGLE_EMAIL || 'nikhil42865@gmail.com',
     ownerEmail: process.env.OWNER_NOTIFICATION_EMAIL || 'nikhil42865@gmail.com',
-    fromEmail: process.env.NOTIFICATION_FROM_EMAIL || 'onboarding@resend.dev',
   },
 };

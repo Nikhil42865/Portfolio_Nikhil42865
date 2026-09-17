@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { Database } from '../../shared/database';
 import { ProjectRequest, ProjectRequestStatus, AdminNote } from './projectRequest.types';
+import { ProjectRequestModel } from './projectRequest.model';
 
 export interface ProjectRequestFilters {
   status?: string;
@@ -37,6 +38,12 @@ export class ProjectRequestRepository {
       updatedAt: now,
     };
 
+    // 1. Save to MongoDB Atlas if connected
+    if (Database.isMongoActive()) {
+      await ProjectRequestModel.create(newRequest);
+    }
+
+    // 2. Also keep local JSON database in sync as backup
     const db = Database.readLocalDb();
     db.projectRequests.unshift(newRequest);
     Database.writeLocalDb(db);
@@ -45,6 +52,15 @@ export class ProjectRequestRepository {
   }
 
   static async findById(id: string): Promise<ProjectRequest | null> {
+    if (Database.isMongoActive()) {
+      const doc = await ProjectRequestModel.findOne({
+        $or: [{ id }, { referenceNumber: id }],
+      }).lean();
+      if (doc) {
+        return doc as unknown as ProjectRequest;
+      }
+    }
+
     const db = Database.readLocalDb();
     const item = db.projectRequests.find((req) => req.id === id || req.referenceNumber === id);
     return item || null;
@@ -58,10 +74,78 @@ export class ProjectRequestRepository {
     totalPages: number;
     stats: Record<string, number>;
   }> {
+    if (Database.isMongoActive()) {
+      const query: any = {};
+
+      if (filters.status && filters.status !== 'all') {
+        query.status = filters.status;
+      }
+
+      if (filters.serviceType && filters.serviceType !== 'all') {
+        query.serviceType = { $regex: filters.serviceType, $options: 'i' };
+      }
+
+      if (filters.budgetRange && filters.budgetRange !== 'all') {
+        query.budgetRange = filters.budgetRange;
+      }
+
+      if (filters.search && filters.search.trim()) {
+        const q = filters.search.trim();
+        query.$or = [
+          { referenceNumber: { $regex: q, $options: 'i' } },
+          { title: { $regex: q, $options: 'i' } },
+          { 'contact.name': { $regex: q, $options: 'i' } },
+          { 'contact.email': { $regex: q, $options: 'i' } },
+        ];
+      }
+
+      // Compute stats across all requests in Mongo
+      const allDocs = await ProjectRequestModel.find({}, { status: 1 }).lean();
+      const stats: Record<string, number> = {
+        total: allDocs.length,
+        New: 0,
+        Reviewing: 0,
+        'Need More Information': 0,
+        'Quote Sent': 0,
+        Accepted: 0,
+        'In Progress': 0,
+        Completed: 0,
+        Declined: 0,
+        Spam: 0,
+      };
+
+      for (const d of allDocs) {
+        if (stats[d.status] !== undefined) {
+          stats[d.status]++;
+        }
+      }
+
+      const total = await ProjectRequestModel.countDocuments(query);
+      const page = Math.max(1, filters.page || 1);
+      const limit = Math.max(1, Math.min(100, filters.limit || 10));
+      const totalPages = Math.ceil(total / limit) || 1;
+      const skip = (page - 1) * limit;
+
+      const items = (await ProjectRequestModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()) as unknown as ProjectRequest[];
+
+      return {
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
+        stats,
+      };
+    }
+
+    // Local DB fallback
     const db = Database.readLocalDb();
     let requests: ProjectRequest[] = [...(db.projectRequests || [])];
 
-    // Compute stats across all requests
     const stats: Record<string, number> = {
       total: requests.length,
       New: 0,
@@ -126,37 +210,68 @@ export class ProjectRequestRepository {
   }
 
   static async updateStatus(id: string, status: ProjectRequestStatus): Promise<ProjectRequest | null> {
+    const updatedAt = new Date().toISOString();
+
+    if (Database.isMongoActive()) {
+      await ProjectRequestModel.findOneAndUpdate(
+        { $or: [{ id }, { referenceNumber: id }] },
+        { status, updatedAt }
+      );
+    }
+
     const db = Database.readLocalDb();
     const index = db.projectRequests.findIndex((r) => r.id === id || r.referenceNumber === id);
-    if (index === -1) return null;
+    if (index !== -1) {
+      db.projectRequests[index].status = status;
+      db.projectRequests[index].updatedAt = updatedAt;
+      Database.writeLocalDb(db);
+      return db.projectRequests[index];
+    }
 
-    db.projectRequests[index].status = status;
-    db.projectRequests[index].updatedAt = new Date().toISOString();
-    Database.writeLocalDb(db);
+    if (Database.isMongoActive()) {
+      const doc = await ProjectRequestModel.findOne({ $or: [{ id }, { referenceNumber: id }] }).lean();
+      return (doc as unknown as ProjectRequest) || null;
+    }
 
-    return db.projectRequests[index];
+    return null;
   }
 
   static async addNote(id: string, text: string, author: string): Promise<ProjectRequest | null> {
-    const db = Database.readLocalDb();
-    const index = db.projectRequests.findIndex((r) => r.id === id || r.referenceNumber === id);
-    if (index === -1) return null;
-
+    const updatedAt = new Date().toISOString();
     const newNote: AdminNote = {
       id: `note_${Date.now()}`,
       text,
       author,
-      createdAt: new Date().toISOString(),
+      createdAt: updatedAt,
     };
 
-    if (!db.projectRequests[index].notes) {
-      db.projectRequests[index].notes = [];
+    if (Database.isMongoActive()) {
+      await ProjectRequestModel.findOneAndUpdate(
+        { $or: [{ id }, { referenceNumber: id }] },
+        {
+          $push: { notes: { $each: [newNote], $position: 0 } },
+          updatedAt,
+        }
+      );
     }
 
-    db.projectRequests[index].notes.unshift(newNote);
-    db.projectRequests[index].updatedAt = new Date().toISOString();
-    Database.writeLocalDb(db);
+    const db = Database.readLocalDb();
+    const index = db.projectRequests.findIndex((r) => r.id === id || r.referenceNumber === id);
+    if (index !== -1) {
+      if (!db.projectRequests[index].notes) {
+        db.projectRequests[index].notes = [];
+      }
+      db.projectRequests[index].notes.unshift(newNote);
+      db.projectRequests[index].updatedAt = updatedAt;
+      Database.writeLocalDb(db);
+      return db.projectRequests[index];
+    }
 
-    return db.projectRequests[index];
+    if (Database.isMongoActive()) {
+      const doc = await ProjectRequestModel.findOne({ $or: [{ id }, { referenceNumber: id }] }).lean();
+      return (doc as unknown as ProjectRequest) || null;
+    }
+
+    return null;
   }
 }

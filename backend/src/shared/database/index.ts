@@ -34,16 +34,42 @@ export class Database {
     if (config.mongodbUri) {
       try {
         await mongoose.connect(config.mongodbUri, {
-          serverSelectionTimeoutMS: 3000,
+          serverSelectionTimeoutMS: 5000,
         });
         this.isConnectedToMongo = true;
         Logger.info('Connected successfully to MongoDB Atlas.');
+
+        // Synchronize local JSON data to MongoDB Atlas on startup
+        await this.syncLocalToMongo();
       } catch (err: any) {
         this.isConnectedToMongo = false;
         Logger.warn(`MongoDB connection failed: ${err.message}. Seamlessly falling back to local file persistence.`);
       }
     } else {
       Logger.info('No MONGODB_URI configured. Running with robust local file persistence (backend/data/local_db.json).');
+    }
+  }
+
+  private static async syncLocalToMongo() {
+    try {
+      const localData = this.readLocalDb();
+      if (localData.projectRequests && localData.projectRequests.length > 0) {
+        const { ProjectRequestModel } = await import('../../modules/projectRequests/projectRequest.model');
+        for (const item of localData.projectRequests) {
+          await ProjectRequestModel.updateOne({ id: item.id }, { $set: item }, { upsert: true });
+        }
+        Logger.info(`Synced ${localData.projectRequests.length} project request(s) from local_db to MongoDB Atlas.`);
+      }
+
+      if (localData.contactMessages && localData.contactMessages.length > 0) {
+        const { ContactMessageModel } = await import('../../modules/contactMessages/contactMessage.model');
+        for (const msg of localData.contactMessages) {
+          await ContactMessageModel.updateOne({ id: msg.id }, { $set: msg }, { upsert: true });
+        }
+        Logger.info(`Synced ${localData.contactMessages.length} contact message(s) from local_db to MongoDB Atlas.`);
+      }
+    } catch (err: any) {
+      Logger.warn(`Initial sync from local to MongoDB skipped or encountered error: ${err.message}`);
     }
   }
 
