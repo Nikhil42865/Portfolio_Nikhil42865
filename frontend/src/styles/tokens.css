@@ -1,0 +1,82 @@
+:root {
+  /* Color Palette - Premium Dark Sleek */
+  --color-bg: #0B1020;
+  --color-bg-alt: #080C19;
+  --color-surface: #121A2E;
+  --color-surface-raised: #18233D;
+  --color-surface-elevated: #1F2C4C;
+  --color-surface-glass: rgba(18, 26, 46, 0.75);
+  
+  --color-border: rgba(110, 231, 242, 0.16);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-active: #6EE7F2;
+  
+  --color-primary: #6EE7F2;
+  --color-primary-dark: #22B8CF;
+  --color-primary-glow: rgba(110, 231, 242, 0.22);
+  --color-accent-amber: #FBBF24;
+  
+  --color-text-primary: #F7F9FC;
+  --color-text-secondary: #AAB5CC;
+  --color-text-muted: #7E8DA6;
+  --color-text-inverse: #0B1020;
+
+  --color-success: #34D399;
+  --color-success-bg: rgba(52, 211, 153, 0.12);
+  --color-warning: #FBBF24;
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
+  --color-error: #FB7185;
+  --color-error-bg: rgba(251, 113, 133, 0.12);
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', var(--font-sans);
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Font Sizes - Fluid with clamp() */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: clamp(1.4rem, 2vw + 0.8rem, 1.75rem);
+  --text-3xl: clamp(1.75rem, 3vw + 1rem, 2.25rem);
+  --text-4xl: clamp(2.2rem, 4vw + 1.2rem, 3rem);
+  --text-5xl: clamp(2.6rem, 5vw + 1.5rem, 4rem);
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-elevated: 0 14px 40px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px rgba(110, 231, 242, 0.15);
+  --shadow-glow-strong: 0 0 45px rgba(110, 231, 242, 0.3);
+
+  /* Max Widths */
+  --max-width-content: 1200px;
+  --max-width-narrow: 800px;
+  --max-width-form: 680px;
+
+  /* Header Height */
+  --header-height: 72px;
+}
