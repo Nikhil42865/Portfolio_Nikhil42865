@@ -11,15 +11,27 @@ function getTransporter(): Transporter | null {
     return null;
   }
   if (!transporterInstance) {
-    transporterInstance = nodemailer.createTransport({
-      host: config.smtp.host,
-      port: config.smtp.port,
-      secure: config.smtp.secure,
-      auth: {
-        user: config.smtp.user,
-        pass: config.smtp.pass,
-      },
-    });
+    const isGmail =
+      config.smtp.host.includes('gmail') ||
+      config.smtp.user.toLowerCase().endsWith('@gmail.com');
+
+    transporterInstance = isGmail
+      ? nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: config.smtp.user,
+            pass: config.smtp.pass,
+          },
+        })
+      : nodemailer.createTransport({
+          host: config.smtp.host,
+          port: config.smtp.port,
+          secure: config.smtp.secure,
+          auth: {
+            user: config.smtp.user,
+            pass: config.smtp.pass,
+          },
+        });
   }
   return transporterInstance;
 }
@@ -133,7 +145,10 @@ WhatsApp: +91 6202591561
 
     const transporter = getTransporter();
     if (!transporter) {
-      Logger.info('Google SMTP credentials (SMTP_USER & SMTP_PASS) not configured. Live email dispatch skipped. Notifications logged to console.');
+      Logger.warn(
+        `Google SMTP is NOT active! SMTP_USER="${config.smtp.user}", SMTP_PASS=${config.smtp.pass ? '[SET]' : '[MISSING]'}. ` +
+        `Please add SMTP_USER and SMTP_PASS in your Render Environment Variables dashboard to send live emails.`
+      );
       return;
     }
 

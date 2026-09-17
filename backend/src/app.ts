@@ -16,6 +16,9 @@ import uploadRoutes from './modules/uploads/upload.routes';
 
 const app = express();
 
+// Trust Render / Cloud reverse proxy
+app.set('trust proxy', 1);
+
 // Security Headers
 app.use(
   helmet({

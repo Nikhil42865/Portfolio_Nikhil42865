@@ -34,19 +34,19 @@ export class Database {
     if (config.mongodbUri) {
       try {
         await mongoose.connect(config.mongodbUri, {
-          serverSelectionTimeoutMS: 5000,
+          serverSelectionTimeoutMS: 8000,
         });
         this.isConnectedToMongo = true;
-        Logger.info('Connected successfully to MongoDB Atlas.');
+        Logger.info(`Connected successfully to MongoDB Atlas (DB: "${mongoose.connection.db?.databaseName}").`);
 
         // Synchronize local JSON data to MongoDB Atlas on startup
         await this.syncLocalToMongo();
       } catch (err: any) {
         this.isConnectedToMongo = false;
-        Logger.warn(`MongoDB connection failed: ${err.message}. Seamlessly falling back to local file persistence.`);
+        Logger.error(`MongoDB Atlas connection FAILED: ${err.message}. (Check if MONGODB_URI is correct and IP Access is set to 0.0.0.0/0 in Atlas). Falling back to local file persistence.`);
       }
     } else {
-      Logger.info('No MONGODB_URI configured. Running with robust local file persistence (backend/data/local_db.json).');
+      Logger.warn('MONGODB_URI is NOT configured in environment variables! Data will only be saved in temporary container files, NOT MongoDB Atlas.');
     }
   }
 
