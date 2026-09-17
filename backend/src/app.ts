@@ -24,9 +24,27 @@ app.use(
 );
 
 // CORS
+const allowedOrigins = [
+  config.frontendUrl.replace(/\/$/, ''),
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:5174',
+];
+
 app.use(
   cors({
-    origin: [config.frontendUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.onrender.com') ||
+        origin.endsWith('.vercel.app') ||
+        config.nodeEnv !== 'production'
+      ) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );

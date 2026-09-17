@@ -11,7 +11,9 @@ export interface ApiResponse<T = any> {
 }
 
 class ApiClient {
-  private baseUrl = '/api/v1';
+  private baseUrl =
+    (import.meta.env.VITE_API_URL ? (import.meta.env.VITE_API_URL as string).replace(/\/$/, '') : '') +
+    '/api/v1';
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;

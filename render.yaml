@@ -1,0 +1,62 @@
+services:
+  # -------------------------------------------------------------
+  # 1. Backend Web Service (Node.js Express API)
+  # -------------------------------------------------------------
+  - type: web
+    name: nikhil-portfolio-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: nikhil42865@gmail.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_SECURE
+        value: "true"
+      - key: SMTP_USER
+        value: nikhil42865@gmail.com
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: '"Nikhil Kumar" <nikhil42865@gmail.com>'
+      - key: OWNER_NOTIFICATION_EMAIL
+        value: nikhil42865@gmail.com
+
+  # -------------------------------------------------------------
+  # 2. Frontend Static Site (React Vite SPA)
+  # -------------------------------------------------------------
+  - type: static
+    name: nikhil-portfolio-frontend
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: nikhil-portfolio-backend
+          property: host
+      - key: VITE_WHATSAPP_NUMBER
+        value: "916202591561"
+      - key: VITE_WHATSAPP_MESSAGE
+        value: "Hi Nikhil, I reviewed your portfolio and would like to discuss a project."
