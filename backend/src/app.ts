@@ -91,7 +91,7 @@ app.get(['/health', '/api/health', '/api/v1/health'], (_req, res) => {
 
 // Register Module Routes
 app.use('/api/v1/project-requests', projectRequestRoutes);
-app.use('/api/v1/contact-messages', contactMessageRoutes);
+app.use(['/api/v1/contact-messages', '/api/v1/contact/messages'], contactMessageRoutes);
 app.use('/api/v1/admin/auth', authRoutes);
 app.use('/api/v1/uploads', uploadRoutes);
 

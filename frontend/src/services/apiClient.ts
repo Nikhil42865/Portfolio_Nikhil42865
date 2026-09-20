@@ -101,7 +101,7 @@ class ApiClient {
   }
 
   async submitContactMessage(data: { name: string; email: string; subject: string; message: string }) {
-    return this.request<{ id: string; message: string }>('/contact/messages', {
+    return this.request<{ id: string; message: string }>('/contact-messages', {
       method: 'POST',
       body: JSON.stringify(data),
     });
