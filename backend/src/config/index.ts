@@ -37,6 +37,14 @@ export const config = {
       'text/plain',
     ],
   },
+  gmail: {
+    user: process.env.GMAIL_USER || process.env.SMTP_USER || process.env.GOOGLE_EMAIL || 'nikhil42865@gmail.com',
+    clientId: process.env.GMAIL_CLIENT_ID || '',
+    clientSecret: process.env.GMAIL_CLIENT_SECRET || '',
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN || '',
+    from: process.env.GMAIL_FROM || process.env.SMTP_FROM || '"Nikhil Kumar" <nikhil42865@gmail.com>',
+    ownerEmail: process.env.OWNER_NOTIFICATION_EMAIL || 'nikhil42865@gmail.com',
+  },
   smtp: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '465', 10),

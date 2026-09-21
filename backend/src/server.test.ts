@@ -136,3 +136,65 @@ describe('Network & IPv4 Routing Constraints', () => {
   });
 });
 
+describe('Gmail API REST Service', () => {
+  it('creates valid RFC 2822 base64url encoded message with headers and multipart body', async () => {
+    const { GmailApiService } = await import('./shared/gmail.service');
+
+    const rawBase64Url = GmailApiService.createMimeMessage({
+      to: 'client@example.com',
+      subject: 'Test Subject with Unicode: ✨ Project Confirmed',
+      text: 'Hello, this is plain text content.',
+      html: '<h1>Hello</h1><p>This is HTML content.</p>',
+      from: '"Nikhil Kumar" <nikhil42865@gmail.com>',
+      replyTo: 'reply@example.com',
+    });
+
+    expect(typeof rawBase64Url).toBe('string');
+    expect(rawBase64Url.length).toBeGreaterThan(50);
+    // RFC 4648 base64url characters only: [A-Za-z0-9_-]
+    expect(rawBase64Url).toMatch(/^[A-Za-z0-9_-]+$/);
+
+    // Decode base64url back to utf-8 text
+    let base64 = rawBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const decoded = Buffer.from(base64, 'base64').toString('utf-8');
+
+    expect(decoded).toContain('To: client@example.com');
+    expect(decoded).toContain('From: "Nikhil Kumar" <nikhil42865@gmail.com>');
+    expect(decoded).toContain('Reply-To: reply@example.com');
+    expect(decoded).toContain('MIME-Version: 1.0');
+    expect(decoded).toContain('multipart/alternative');
+    expect(decoded).toContain('Hello, this is plain text content.');
+    expect(decoded).toContain('<h1>Hello</h1><p>This is HTML content.</p>');
+  });
+
+  it('correctly detects if Gmail API is configured based on credentials presence', async () => {
+    const { GmailApiService } = await import('./shared/gmail.service');
+    const { config } = await import('./config');
+
+    const originalClientId = config.gmail.clientId;
+    const originalClientSecret = config.gmail.clientSecret;
+    const originalRefreshToken = config.gmail.refreshToken;
+
+    // Test with missing credentials
+    config.gmail.clientId = '';
+    config.gmail.clientSecret = '';
+    config.gmail.refreshToken = '';
+    expect(GmailApiService.isConfigured()).toBe(false);
+
+    // Test with complete credentials
+    config.gmail.clientId = 'mock-client-id.apps.googleusercontent.com';
+    config.gmail.clientSecret = 'mock-client-secret';
+    config.gmail.refreshToken = '1//mock-refresh-token';
+    expect(GmailApiService.isConfigured()).toBe(true);
+
+    // Restore
+    config.gmail.clientId = originalClientId;
+    config.gmail.clientSecret = originalClientSecret;
+    config.gmail.refreshToken = originalRefreshToken;
+  });
+});
+
+

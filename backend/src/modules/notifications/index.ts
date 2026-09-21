@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { config } from '../../config';
 import { Logger } from '../../shared/logger';
+import { GmailApiService, SendEmailOptions } from '../../shared/gmail.service';
 import { ProjectRequest } from '../projectRequests/projectRequest.types';
 
 let transporterInstance: Transporter | null = null;
@@ -15,12 +16,11 @@ function getTransporter(): Transporter | null {
     const smtpHost = config.smtp.host || 'smtp.gmail.com';
     const smtpPort = config.smtp.port || 465;
 
-    // Use explicit host/port rather than service: 'gmail' to allow full socket control (family: 4)
     transporterInstance = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
       secure: config.smtp.secure !== false,
-      family: 4, // Force IPv4 routing on environments without IPv6 support (e.g. Render)
+      family: 4,
       auth: {
         user: config.smtp.user,
         pass: config.smtp.pass,
@@ -34,6 +34,47 @@ function getTransporter(): Transporter | null {
 }
 
 export class NotificationService {
+  /**
+   * Internal helper to dispatch email via Gmail REST API (preferred on Render)
+   * or fallback to SMTP if configured.
+   */
+  private static async dispatchEmail(options: SendEmailOptions, label: string): Promise<void> {
+    if (GmailApiService.isConfigured()) {
+      try {
+        await GmailApiService.sendEmail(options);
+        Logger.info(`${label} successfully delivered via Gmail API to ${options.to}`);
+        return;
+      } catch (err: any) {
+        Logger.error(`Failed to dispatch ${label} via Gmail API: ${err.message}`);
+        return;
+      }
+    }
+
+    const transporter = getTransporter();
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: options.from,
+          to: options.to,
+          replyTo: options.replyTo,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
+        });
+        Logger.info(`${label} delivered via fallback SMTP to ${options.to}`);
+        return;
+      } catch (err: any) {
+        Logger.error(`Failed to dispatch ${label} via SMTP: ${err.message}`);
+        return;
+      }
+    }
+
+    Logger.warn(
+      `Email service not active for ${label}! Please configure GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, ` +
+      `and GMAIL_REFRESH_TOKEN in your Render Environment Variables dashboard to send live emails via Gmail API.`
+    );
+  }
+
   static async sendProjectRequestNotifications(request: ProjectRequest): Promise<void> {
     const ownerEmailContent = `
 === NEW PROJECT REQUEST RECEIVED ===
@@ -136,46 +177,36 @@ WhatsApp: +91 6202591561
 </html>
 `;
 
-    // Always log to console in development
+    // Development console logs
     Logger.info('[PROJECT REQUEST RECEIVED - Owner Notification]', { content: ownerEmailContent.trim() });
     Logger.info('[CONFIRMATION DISPATCH - Client Receipt]', { content: clientConfirmationContent.trim() });
 
-    const transporter = getTransporter();
-    if (!transporter) {
-      Logger.warn(
-        `Google SMTP is NOT active! SMTP_USER="${config.smtp.user}", SMTP_PASS=${config.smtp.pass ? '[SET]' : '[MISSING]'}. ` +
-        `Please add SMTP_USER and SMTP_PASS in your Render Environment Variables dashboard to send live emails.`
-      );
-      return;
-    }
+    const fromAddress = config.gmail.from.includes('<')
+      ? config.gmail.from
+      : `"Nikhil Kumar" <${config.gmail.user}>`;
 
-    const fromAddress = config.smtp.from.includes('<')
-      ? config.smtp.from
-      : `"Nikhil Kumar" <${config.smtp.user}>`;
-
-    // Dispatch live emails via Google SMTP
-    try {
-      // 1. Send Alert to Owner (Nikhil)
-      await transporter.sendMail({
+    // 1. Send Alert to Owner (Nikhil)
+    await this.dispatchEmail(
+      {
         from: fromAddress,
-        to: config.smtp.ownerEmail,
+        to: config.gmail.ownerEmail,
         subject: `[New Lead ${request.referenceNumber}] ${request.serviceType} - ${request.contact.name}`,
         text: ownerEmailContent,
-      });
-      Logger.info(`Owner notification successfully delivered via Google SMTP to ${config.smtp.ownerEmail}`);
+      },
+      'Owner notification'
+    );
 
-      // 2. Send Confirmation Receipt to Client
-      await transporter.sendMail({
+    // 2. Send Confirmation Receipt to Client
+    await this.dispatchEmail(
+      {
         from: fromAddress,
         to: request.contact.email,
         subject: `Your Project Request [${request.referenceNumber}] Received - Nikhil Kumar`,
         text: clientConfirmationContent,
         html: clientHtml,
-      });
-      Logger.info(`Client confirmation successfully delivered via Google SMTP to ${request.contact.email}`);
-    } catch (err: any) {
-      Logger.error(`Failed to dispatch email via Google SMTP: ${err.message}`);
-    }
+      },
+      'Client confirmation receipt'
+    );
   }
 
   static async sendContactMessageNotification(data: {
@@ -194,36 +225,31 @@ Message: ${data.message}
 `;
     Logger.info('[DEV CONTACT MESSAGE NOTIFICATION]', { content: logContent.trim() });
 
-    const transporter = getTransporter();
-    if (!transporter) {
-      return;
-    }
+    const fromAddress = config.gmail.from.includes('<')
+      ? config.gmail.from
+      : `"Nikhil Kumar" <${config.gmail.user}>`;
 
-    const fromAddress = config.smtp.from.includes('<')
-      ? config.smtp.from
-      : `"Nikhil Kumar" <${config.smtp.user}>`;
-
-    try {
-      // Send message to owner
-      await transporter.sendMail({
+    // 1. Send message to Owner
+    await this.dispatchEmail(
+      {
         from: fromAddress,
-        to: config.smtp.ownerEmail,
+        to: config.gmail.ownerEmail,
         replyTo: data.email,
         subject: `[Portfolio Contact] ${data.subject} - from ${data.name}`,
         text: `You have received a new contact message:\n\nName: ${data.name}\nEmail: ${data.email}\nSubject: ${data.subject}\n\nMessage:\n${data.message}`,
-      });
-      Logger.info(`Live contact email dispatched via Google SMTP to ${config.smtp.ownerEmail}`);
+      },
+      'Live contact email to owner'
+    );
 
-      // Send confirmation receipt to sender
-      await transporter.sendMail({
+    // 2. Send confirmation receipt to Sender
+    await this.dispatchEmail(
+      {
         from: fromAddress,
         to: data.email,
         subject: `Message Received - Nikhil Kumar`,
-        text: `Hi ${data.name},\n\nThank you for reaching out through my portfolio. I have received your message regarding "${data.subject}" and will get back to you shortly.\n\nBest regards,\nNikhil Kumar\nFull-Stack & AI Engineer\nWhatsApp / Phone: +91 6202591561\nEmail: ${config.smtp.ownerEmail}`,
-      });
-      Logger.info(`Contact receipt dispatched via Google SMTP to sender: ${data.email}`);
-    } catch (err: any) {
-      Logger.error(`Failed to send contact email via Google SMTP: ${err.message}`);
-    }
+        text: `Hi ${data.name},\n\nThank you for reaching out through my portfolio. I have received your message regarding "${data.subject}" and will get back to you shortly.\n\nBest regards,\nNikhil Kumar\nFull-Stack & AI Engineer\nWhatsApp / Phone: +91 6202591561\nEmail: ${config.gmail.ownerEmail}`,
+      },
+      'Contact confirmation receipt to sender'
+    );
   }
 }
