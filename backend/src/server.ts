@@ -1,3 +1,4 @@
+import './shared/network';
 import app from './app';
 import { config } from './config';
 import { Database } from './shared/database';

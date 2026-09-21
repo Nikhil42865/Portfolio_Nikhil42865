@@ -116,3 +116,23 @@ describe('Project Request Domain Logic', () => {
     expect(parsed.success).toBe(false);
   });
 });
+
+describe('Network & IPv4 Routing Constraints', () => {
+  it('ensures dns.Resolver does not resolve unreachable IPv6 addresses for Nodemailer', async () => {
+    const dns = await import('node:dns');
+    await import('./shared/network');
+
+    const resolver = new dns.Resolver();
+    return new Promise<void>((resolve, reject) => {
+      resolver.resolve6('smtp.gmail.com', (err, addresses) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        expect(addresses).toEqual([]);
+        resolve();
+      });
+    });
+  });
+});
+

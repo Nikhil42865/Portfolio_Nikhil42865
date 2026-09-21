@@ -1,3 +1,4 @@
+import '../../shared/network';
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { config } from '../../config';
@@ -11,27 +12,23 @@ function getTransporter(): Transporter | null {
     return null;
   }
   if (!transporterInstance) {
-    const isGmail =
-      config.smtp.host.includes('gmail') ||
-      config.smtp.user.toLowerCase().endsWith('@gmail.com');
+    const smtpHost = config.smtp.host || 'smtp.gmail.com';
+    const smtpPort = config.smtp.port || 465;
 
-    transporterInstance = isGmail
-      ? nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: config.smtp.user,
-            pass: config.smtp.pass,
-          },
-        })
-      : nodemailer.createTransport({
-          host: config.smtp.host,
-          port: config.smtp.port,
-          secure: config.smtp.secure,
-          auth: {
-            user: config.smtp.user,
-            pass: config.smtp.pass,
-          },
-        });
+    // Use explicit host/port rather than service: 'gmail' to allow full socket control (family: 4)
+    transporterInstance = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: config.smtp.secure !== false,
+      family: 4, // Force IPv4 routing on environments without IPv6 support (e.g. Render)
+      auth: {
+        user: config.smtp.user,
+        pass: config.smtp.pass,
+      },
+      tls: {
+        servername: smtpHost,
+      },
+    } as any);
   }
   return transporterInstance;
 }
