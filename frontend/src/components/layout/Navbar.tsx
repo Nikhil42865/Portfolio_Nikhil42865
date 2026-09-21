@@ -9,7 +9,7 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -50,10 +50,12 @@ export const Navbar: React.FC = () => {
           height: 'var(--header-height)',
           zIndex: 1000,
           transition: 'all var(--duration-fast) var(--ease-standard)',
-          backgroundColor: isScrolled ? 'rgba(11, 16, 32, 0.85)' : 'transparent',
+          backgroundColor: isScrolled ? 'rgba(8, 12, 22, 0.88)' : 'transparent',
           backdropFilter: isScrolled ? 'blur(16px)' : 'none',
           WebkitBackdropFilter: isScrolled ? 'blur(16px)' : 'none',
-          borderBottom: isScrolled ? '1px solid var(--color-border-subtle)' : '1px solid transparent',
+          borderBottom: isScrolled
+            ? '1px solid var(--color-border-subtle)'
+            : '1px solid transparent',
         }}
       >
         <div
@@ -71,7 +73,7 @@ export const Navbar: React.FC = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.65rem',
+              gap: '0.75rem',
               textDecoration: 'none',
               color: 'var(--color-text-primary)',
             }}
@@ -82,21 +84,21 @@ export const Navbar: React.FC = () => {
                 width: '38px',
                 height: '38px',
                 borderRadius: 'var(--radius-md)',
-                background: 'linear-gradient(135deg, #18233D, #121A2E)',
+                background: 'linear-gradient(135deg, #16233B, #0E1627)',
                 border: '1px solid var(--color-border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: 'var(--shadow-subtle)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
               }}
             >
               <span
                 style={{
                   fontFamily: 'var(--font-mono)',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
                   color: 'var(--color-primary)',
-                  letterSpacing: '-0.05em',
+                  letterSpacing: '-0.02em',
                 }}
               >
                 NK
@@ -107,34 +109,39 @@ export const Navbar: React.FC = () => {
                 style={{
                   fontFamily: 'var(--font-display)',
                   fontWeight: 700,
-                  fontSize: '1.05rem',
-                  letterSpacing: '-0.01em',
+                  fontSize: '1rem',
+                  letterSpacing: 'var(--tracking-tight)',
                   color: 'var(--color-text-primary)',
-                  lineHeight: 1.1,
+                  lineHeight: 1.2,
                 }}
               >
                 Nikhil Kumar
               </span>
               <span
                 style={{
-                  fontSize: '0.72rem',
+                  fontSize: '0.7rem',
                   color: 'var(--color-text-muted)',
                   letterSpacing: '0.02em',
+                  lineHeight: 1,
                 }}
               >
-                Full-Stack & AI Engineer
+                Full-Stack &amp; AI Engineer
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
           <nav
+            className="desktop-nav"
             style={{
               display: 'none',
               alignItems: 'center',
-              gap: '2rem',
+              gap: '0.35rem',
+              background: 'rgba(255, 255, 255, 0.03)',
+              padding: '0.3rem 0.4rem',
+              borderRadius: 'var(--radius-full)',
+              border: '1px solid var(--color-border-subtle)',
             }}
-            className="desktop-nav"
           >
             {navLinks.map((link) => (
               <NavLink
@@ -142,10 +149,13 @@ export const Navbar: React.FC = () => {
                 to={link.path}
                 style={({ isActive }) => ({
                   color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                  backgroundColor: isActive ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
                   fontWeight: isActive ? 600 : 500,
-                  fontSize: 'var(--text-sm)',
-                  position: 'relative',
-                  padding: '0.25rem 0',
+                  fontSize: 'var(--text-xs)',
+                  padding: '0.45rem 0.95rem',
+                  borderRadius: 'var(--radius-full)',
+                  transition: 'all var(--duration-fast) var(--ease-standard)',
+                  textDecoration: 'none',
                 })}
               >
                 {link.name}
@@ -154,16 +164,15 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop CTA & Mobile Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Link
               to="/start-project"
               className="btn btn-primary btn-sm desktop-cta"
               style={{
                 display: 'none',
-                boxShadow: '0 2px 14px rgba(110, 231, 242, 0.25)',
               }}
             >
-              <Sparkles size={15} />
+              <Sparkles size={14} />
               Start a Project
             </Link>
 
@@ -176,18 +185,18 @@ export const Navbar: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: 'rgba(255, 255, 255, 0.04)',
                 border: '1px solid var(--color-border-subtle)',
                 color: 'var(--color-text-primary)',
-                width: '40px',
-                height: '40px',
+                width: '38px',
+                height: '38px',
                 borderRadius: 'var(--radius-md)',
                 cursor: 'pointer',
               }}
               aria-label={isMobileMenuOpen ? 'Close Menu' : 'Open Menu'}
               aria-expanded={isMobileMenuOpen}
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
@@ -205,7 +214,7 @@ export const Navbar: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(11, 16, 32, 0.98)',
+            backgroundColor: 'rgba(8, 12, 22, 0.96)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             zIndex: 999,
@@ -213,15 +222,15 @@ export const Navbar: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            animation: 'fadeIn 0.2s ease-out',
+            animation: 'fadeIn var(--duration-fast) var(--ease-standard)',
           }}
         >
           <nav
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '1.25rem',
-              marginTop: 'var(--space-4)',
+              gap: '1rem',
+              marginTop: 'var(--space-2)',
             }}
           >
             {navLinks.map((link) => (
@@ -230,40 +239,48 @@ export const Navbar: React.FC = () => {
                 to={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
                 style={({ isActive }) => ({
-                  fontSize: 'var(--text-xl)',
+                  fontSize: 'var(--text-lg)',
                   fontWeight: 600,
                   color: isActive ? 'var(--color-primary)' : 'var(--color-text-primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '0.5rem 0',
+                  padding: '0.75rem 0',
                   borderBottom: '1px solid var(--color-border-subtle)',
+                  textDecoration: 'none',
                 })}
               >
                 {link.name}
-                <ArrowUpRight size={18} style={{ opacity: 0.5 }} />
+                <ArrowUpRight size={18} style={{ opacity: 0.4 }} />
               </NavLink>
             ))}
           </nav>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <Link
               to="/start-project"
               onClick={() => setIsMobileMenuOpen(false)}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '1rem' }}
+              style={{ width: '100%', padding: '0.85rem' }}
             >
-              <Sparkles size={18} />
+              <Sparkles size={16} />
               Start a Project
             </Link>
-            <p style={{ textAlign: 'center', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
-              Quick response via Email & WhatsApp within 24h
+            <p
+              style={{
+                textAlign: 'center',
+                fontSize: 'var(--text-xs)',
+                color: 'var(--color-text-muted)',
+                marginTop: '0.25rem',
+              }}
+            >
+              Direct response via Email &amp; WhatsApp within 24–48h
             </p>
           </div>
         </div>
       )}
 
-      {/* Media query styling in JSX */}
+      {/* Responsive Breakpoints Support */}
       <style>{`
         @media (min-width: 769px) {
           .desktop-nav {

@@ -7,8 +7,15 @@ import {
   RefreshCw,
   Eye,
   Inbox,
+  ExternalLink,
+  Filter,
+  CheckCircle2,
+  Clock,
+  Send,
+  FileText,
 } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
+import { Card, Button, Badge, EmptyState } from '../../components/ui';
 
 export const AdminDashboardPage: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -73,29 +80,40 @@ export const AdminDashboardPage: React.FC = () => {
     navigate('/admin/login');
   };
 
-  const getStatusBadgeClass = (status: string) => {
+  const getStatusBadgeVariant = (status: string): 'brand' | 'warning' | 'success' | 'subtle' | 'error' => {
     switch (status) {
       case 'New':
-        return 'tag';
+        return 'brand';
       case 'Reviewing':
-        return 'tag tag-warning';
+      case 'Need More Information':
+        return 'warning';
       case 'Quote Sent':
       case 'Accepted':
       case 'In Progress':
       case 'Completed':
-        return 'tag tag-success';
+        return 'success';
       case 'Spam':
       case 'Declined':
-        return 'tag tag-subtle';
+        return 'subtle';
       default:
-        return 'tag';
+        return 'subtle';
     }
   };
 
+  // Helper to extract initials for avatar
+  const getInitials = (name: string) => {
+    if (!name) return '??';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
-    <div className="section" style={{ minHeight: '80vh' }}>
+    <div className="section" style={{ minHeight: '85vh', padding: 'var(--space-8) 0 var(--space-16)' }}>
       <div className="container">
-        {/* Top Bar */}
+        {/* Top Header Bar */}
         <div
           style={{
             display: 'flex',
@@ -105,16 +123,17 @@ export const AdminDashboardPage: React.FC = () => {
             gap: 'var(--space-4)',
             marginBottom: 'var(--space-8)',
             paddingBottom: 'var(--space-6)',
-            borderBottom: '1px solid var(--color-border-subtle)',
+            borderBottom: '1px solid var(--color-border)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
             <div
               style={{
-                width: '40px',
-                height: '40px',
+                width: '44px',
+                height: '44px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(110, 231, 242, 0.1)',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -124,99 +143,199 @@ export const AdminDashboardPage: React.FC = () => {
               <Shield size={22} />
             </div>
             <div>
-              <h1 style={{ fontSize: 'var(--text-2xl)' }}>Request Management Dashboard</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <h1
+                  style={{
+                    fontSize: 'var(--text-2xl)',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    margin: 0,
+                  }}
+                >
+                  Project Pipeline &amp; Inquiries
+                </h1>
+                <Badge variant="brand" size="sm">
+                  Executive
+                </Badge>
+              </div>
               <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
-                Signed in as: {user?.email}
+                Signed in as: <strong style={{ color: 'var(--color-text-secondary)' }}>{user?.email || 'Administrator'}</strong>
               </span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button
-              type="button"
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <Link to="/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <Button variant="ghost" size="sm">
+                <ExternalLink size={14} /> Public Site
+              </Button>
+            </Link>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={loadRequests}
-              className="btn btn-secondary btn-sm"
-              title="Refresh requests"
+              isLoading={loading}
+              title="Refresh project list"
             >
               <RefreshCw size={14} /> Refresh
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleLogout}
-              className="btn btn-ghost btn-sm"
               style={{ color: 'var(--color-error)' }}
             >
               <LogOut size={14} /> Sign Out
-            </button>
+            </Button>
           </div>
         </div>
 
-        {/* Stats Summary Cards */}
+        {/* Stats Summary KPI Cards */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
             gap: 'var(--space-4)',
             marginBottom: 'var(--space-8)',
           }}
         >
-          <div className="card" style={{ padding: 'var(--space-4)', background: 'var(--color-surface)' }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>Total Requests</span>
-            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-text-primary)', display: 'block' }}>
+          <Card
+            variant="default"
+            padding="md"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              borderLeft: '3px solid var(--color-border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                Total Inquiries
+              </span>
+              <FileText size={16} style={{ color: 'var(--color-text-muted)' }} />
+            </div>
+            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono)' }}>
               {stats.total ?? totalCount}
             </strong>
-          </div>
+          </Card>
 
-          <div className="card" style={{ padding: 'var(--space-4)', background: 'var(--color-surface)' }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-primary)' }}>New Leads</span>
-            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-primary)', display: 'block' }}>
+          <Card
+            variant="default"
+            padding="md"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              borderLeft: '3px solid var(--color-primary)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-primary)', fontWeight: 600 }}>
+                New Leads
+              </span>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-primary)' }} />
+            </div>
+            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-primary)', fontFamily: 'var(--font-mono)' }}>
               {stats['New'] ?? 0}
             </strong>
-          </div>
+          </Card>
 
-          <div className="card" style={{ padding: 'var(--space-4)', background: 'var(--color-surface)' }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-warning)' }}>Reviewing</span>
-            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-warning)', display: 'block' }}>
-              {stats['Reviewing'] ?? 0}
+          <Card
+            variant="default"
+            padding="md"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              borderLeft: '3px solid var(--color-warning)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-warning)', fontWeight: 600 }}>
+                Under Review
+              </span>
+              <Clock size={16} style={{ color: 'var(--color-warning)' }} />
+            </div>
+            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-warning)', fontFamily: 'var(--font-mono)' }}>
+              {(stats['Reviewing'] ?? 0) + (stats['Need More Information'] ?? 0)}
             </strong>
-          </div>
+          </Card>
 
-          <div className="card" style={{ padding: 'var(--space-4)', background: 'var(--color-surface)' }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)' }}>Quote Sent</span>
-            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-success)', display: 'block' }}>
+          <Card
+            variant="default"
+            padding="md"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              borderLeft: '3px solid var(--color-success)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)', fontWeight: 600 }}>
+                Quotes Sent
+              </span>
+              <Send size={16} style={{ color: 'var(--color-success)' }} />
+            </div>
+            <strong style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-success)', fontFamily: 'var(--font-mono)' }}>
               {stats['Quote Sent'] ?? 0}
             </strong>
-          </div>
+          </Card>
 
-          <div className="card" style={{ padding: 'var(--space-4)', background: 'var(--color-surface)' }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: '#38BDF8' }}>In Progress / Accepted</span>
-            <strong style={{ fontSize: 'var(--text-2xl)', color: '#38BDF8', display: 'block' }}>
+          <Card
+            variant="default"
+            padding="md"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              borderLeft: '3px solid #38BDF8',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: '#38BDF8', fontWeight: 600 }}>
+                Accepted / In Progress
+              </span>
+              <CheckCircle2 size={16} style={{ color: '#38BDF8' }} />
+            </div>
+            <strong style={{ fontSize: 'var(--text-2xl)', color: '#38BDF8', fontFamily: 'var(--font-mono)' }}>
               {(stats['Accepted'] ?? 0) + (stats['In Progress'] ?? 0)}
             </strong>
-          </div>
+          </Card>
         </div>
 
-        {/* Search & Filter Bar */}
-        <div
-          className="card"
+        {/* Filter & Search Bar */}
+        <Card
+          variant="raised"
+          padding="sm"
           style={{
-            padding: 'var(--space-4)',
             marginBottom: 'var(--space-6)',
-            background: 'var(--color-surface)',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 'var(--space-4)',
+            gap: 'var(--space-3)',
           }}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', color: 'var(--color-text-muted)', fontSize: 'var(--text-xs)', paddingLeft: 'var(--space-2)' }}>
+              <Filter size={13} />
+              <span>Filters:</span>
+            </div>
+
             {/* Status Filter */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="select"
-              style={{ width: 'auto', minWidth: '160px', padding: '0.45rem 0.8rem', fontSize: 'var(--text-xs)' }}
+              style={{
+                width: 'auto',
+                minWidth: '150px',
+                padding: '0.4rem 0.8rem',
+                fontSize: 'var(--text-xs)',
+                height: '36px',
+              }}
               aria-label="Filter by Status"
             >
               <option value="all">All Statuses</option>
@@ -236,10 +355,16 @@ export const AdminDashboardPage: React.FC = () => {
               value={serviceFilter}
               onChange={(e) => setServiceFilter(e.target.value)}
               className="select"
-              style={{ width: 'auto', minWidth: '180px', padding: '0.45rem 0.8rem', fontSize: 'var(--text-xs)' }}
+              style={{
+                width: 'auto',
+                minWidth: '170px',
+                padding: '0.4rem 0.8rem',
+                fontSize: 'var(--text-xs)',
+                height: '36px',
+              }}
               aria-label="Filter by Service"
             >
-              <option value="all">All Services</option>
+              <option value="all">All Service Categories</option>
               <option value="Website Development">Website Development</option>
               <option value="React Development">React Development</option>
               <option value="Backend/API Development">Backend/API Development</option>
@@ -250,7 +375,7 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           {/* Search Input */}
-          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.5rem', width: '100%', maxWidth: '320px' }}>
+          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: 'var(--space-2)', width: '100%', maxWidth: '340px' }}>
             <div style={{ position: 'relative', width: '100%' }}>
               <Search
                 size={14}
@@ -270,40 +395,63 @@ export const AdminDashboardPage: React.FC = () => {
                 className="input"
                 style={{
                   paddingLeft: '2rem',
-                  paddingTop: '0.45rem',
-                  paddingBottom: '0.45rem',
+                  paddingTop: '0.4rem',
+                  paddingBottom: '0.4rem',
                   fontSize: 'var(--text-xs)',
+                  height: '36px',
                 }}
               />
             </div>
-            <button type="submit" className="btn btn-secondary btn-sm">
+            <Button type="submit" variant="secondary" size="sm" style={{ height: '36px' }}>
               Search
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
 
-        {/* Requests Table / Cards */}
+        {/* Requests Table / Content Area */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-12)' }}>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)' }}>
-              Loading project requests...
-            </p>
-          </div>
+          <Card variant="default" padding="lg" style={{ textAlign: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  border: '3px solid var(--color-border)',
+                  borderTopColor: 'var(--color-primary)',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                }}
+              />
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
+                Loading inquiries from database...
+              </span>
+            </div>
+          </Card>
         ) : requests.length === 0 ? (
-          <div
-            className="card"
-            style={{
-              textAlign: 'center',
-              padding: 'var(--space-12)',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text-muted)',
-            }}
-          >
-            <Inbox size={32} style={{ margin: '0 auto var(--space-2) auto', opacity: 0.5 }} />
-            <p style={{ fontSize: 'var(--text-sm)' }}>No project requests found matching the selected filters.</p>
-          </div>
+          <Card variant="default" padding="lg">
+            <EmptyState
+              icon={<Inbox size={36} />}
+              title="No Inquiries Found"
+              description="No project submissions match your current filter and search criteria."
+              action={
+                statusFilter !== 'all' || serviceFilter !== 'all' || searchQuery ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setStatusFilter('all');
+                      setServiceFilter('all');
+                      setSearchQuery('');
+                    }}
+                  >
+                    Reset All Filters
+                  </Button>
+                ) : undefined
+              }
+            />
+          </Card>
         ) : (
-          <div className="card card-elevated" style={{ padding: 0, overflow: 'hidden', background: 'var(--color-surface)' }}>
+          <Card variant="elevated" padding="none" style={{ overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' }}>
               <table
                 style={{
@@ -316,21 +464,21 @@ export const AdminDashboardPage: React.FC = () => {
                 <thead>
                   <tr
                     style={{
-                      borderBottom: '1px solid var(--color-border-subtle)',
+                      borderBottom: '1px solid var(--color-border)',
                       backgroundColor: 'rgba(255, 255, 255, 0.02)',
                       color: 'var(--color-text-muted)',
                       textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
+                      letterSpacing: '0.06em',
                     }}
                   >
-                    <th style={{ padding: 'var(--space-4)' }}>Reference</th>
-                    <th style={{ padding: 'var(--space-4)' }}>Client Name</th>
-                    <th style={{ padding: 'var(--space-4)' }}>Project Title</th>
-                    <th style={{ padding: 'var(--space-4)' }}>Service</th>
-                    <th style={{ padding: 'var(--space-4)' }}>Budget</th>
-                    <th style={{ padding: 'var(--space-4)' }}>Status</th>
-                    <th style={{ padding: 'var(--space-4)' }}>Submitted</th>
-                    <th style={{ padding: 'var(--space-4)', textAlign: 'right' }}>Action</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Reference</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Client</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Project Title</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Domain</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Budget</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Status</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)' }}>Date</th>
+                    <th style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -339,53 +487,113 @@ export const AdminDashboardPage: React.FC = () => {
                       key={req.id}
                       style={{
                         borderBottom: '1px solid var(--color-border-subtle)',
-                        transition: 'background-color 0.15s ease',
+                        transition: 'background-color var(--duration-fast)',
                       }}
+                      className="table-row-hover"
                     >
-                      <td style={{ padding: 'var(--space-4)', fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--color-primary)' }}>
-                        {req.referenceNumber}
-                      </td>
-                      <td style={{ padding: 'var(--space-4)' }}>
-                        <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                          {req.contact.name}
-                        </div>
-                        <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>
-                          {req.contact.email}
+                      {/* Reference Number */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', whiteSpace: 'nowrap' }}>
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 600,
+                            color: 'var(--color-primary)',
+                            backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                            border: '1px solid rgba(56, 189, 248, 0.2)',
+                            padding: '3px 8px',
+                            borderRadius: 'var(--radius-sm)',
+                          }}
+                        >
+                          {req.referenceNumber}
                         </span>
                       </td>
-                      <td style={{ padding: 'var(--space-4)', maxWidth: '240px' }}>
+
+                      {/* Client info with avatar */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                          <div
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: 'var(--radius-full)',
+                              backgroundColor: 'var(--color-surface-elevated)',
+                              border: '1px solid var(--color-border)',
+                              color: 'var(--color-primary)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              fontFamily: 'var(--font-mono)',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {getInitials(req.contact.name)}
+                          </div>
+                          <div>
+                            <strong style={{ color: 'var(--color-text-primary)', display: 'block', fontSize: 'var(--text-xs)' }}>
+                              {req.contact.name}
+                            </strong>
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>
+                              {req.contact.email}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Project Title */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', maxWidth: '240px' }}>
                         <div
                           style={{
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
                             color: 'var(--color-text-primary)',
+                            fontWeight: 500,
                           }}
+                          title={req.title}
                         >
                           {req.title}
                         </div>
+                        {req.attachments && req.attachments.length > 0 && (
+                          <span style={{ fontSize: '10px', color: 'var(--color-primary)' }}>
+                            📎 {req.attachments.length} file(s)
+                          </span>
+                        )}
                       </td>
-                      <td style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)' }}>
+
+                      {/* Service Domain */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
                         {req.serviceType}
                       </td>
-                      <td style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
+
+                      {/* Budget */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                         {req.budgetRange}
                       </td>
-                      <td style={{ padding: 'var(--space-4)' }}>
-                        <span className={getStatusBadgeClass(req.status)} style={{ fontSize: '0.68rem' }}>
+
+                      {/* Status */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', whiteSpace: 'nowrap' }}>
+                        <Badge variant={getStatusBadgeVariant(req.status)} size="sm">
                           {req.status}
-                        </span>
+                        </Badge>
                       </td>
-                      <td style={{ padding: 'var(--space-4)', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
-                        {new Date(req.createdAt).toLocaleDateString()}
+
+                      {/* Date */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                        {new Date(req.createdAt).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
                       </td>
-                      <td style={{ padding: 'var(--space-4)', textAlign: 'right' }}>
-                        <Link
-                          to={`/admin/requests/${req.id}`}
-                          className="btn btn-secondary btn-sm"
-                          style={{ padding: '0.35rem 0.75rem', fontSize: 'var(--text-xs)' }}
-                        >
-                          <Eye size={13} /> View
+
+                      {/* Action */}
+                      <td style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <Link to={`/admin/requests/${req.id}`} style={{ textDecoration: 'none' }}>
+                          <Button variant="secondary" size="sm" style={{ padding: '4px 10px', fontSize: 'var(--text-xs)' }}>
+                            <Eye size={13} /> View
+                          </Button>
                         </Link>
                       </td>
                     </tr>
@@ -393,9 +601,15 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+          </Card>
         )}
       </div>
+
+      <style>{`
+        .table-row-hover:hover {
+          background-color: rgba(56, 189, 248, 0.03) !important;
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Sparkles } from 'lucide-react';
+import { Search, ExternalLink, ArrowRight, X } from 'lucide-react';
 import { PROJECTS_DATA } from '../../data/projectsData';
+import { Badge } from '../../components/ui/Badge';
+import { Card } from '../../components/ui/Card';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 export const ProjectsPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -26,18 +30,14 @@ export const ProjectsPage: React.FC = () => {
     <div className="section">
       <div className="container">
         {/* Page Header */}
-        <div style={{ maxWidth: '800px', marginBottom: 'var(--space-10)' }}>
-          <span className="tag" style={{ marginBottom: 'var(--space-3)' }}>
-            Project Showcase
-          </span>
-          <h1 style={{ marginBottom: 'var(--space-4)' }}>Selected Works &amp; Engineering Case Studies</h1>
-          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--color-text-secondary)' }}>
-            Explore full-stack platforms, machine learning diagnostics, and API architectures built with clean
-            design, strict TypeScript, and high reliability.
-          </p>
-        </div>
+        <SectionHeader
+          align="left"
+          eyebrow="Engineering Showcase"
+          title="Selected Works &amp; Architecture Case Studies"
+          description="Explore production platforms, AI/ML pipelines, and resilient APIs built with clean design, strict TypeScript, and real business impact."
+        />
 
-        {/* Filter Bar & Search */}
+        {/* Filter & Search Bar */}
         <div
           style={{
             display: 'flex',
@@ -53,32 +53,53 @@ export const ProjectsPage: React.FC = () => {
           }}
         >
           {/* Category Tabs */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  padding: '0.45rem 1rem',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid',
-                  borderColor:
-                    activeCategory === cat ? 'var(--color-primary)' : 'var(--color-border-subtle)',
-                  backgroundColor:
-                    activeCategory === cat ? 'rgba(110, 231, 242, 0.12)' : 'transparent',
-                  color:
-                    activeCategory === cat ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all var(--duration-fast) var(--ease-standard)',
-                }}
-              >
-                {cat}
-              </button>
-            ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+            {categories.map((cat) => {
+              const count =
+                cat === 'All'
+                  ? PROJECTS_DATA.length
+                  : PROJECTS_DATA.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
+
+              const isActive = activeCategory === cat;
+
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.45rem 0.95rem',
+                    borderRadius: 'var(--radius-full)',
+                    border: '1px solid',
+                    borderColor: isActive ? 'var(--color-primary)' : 'transparent',
+                    backgroundColor: isActive ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                    color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: isActive ? 600 : 500,
+                    cursor: 'pointer',
+                    transition: 'all var(--duration-fast)',
+                  }}
+                >
+                  <span>{cat}</span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--text-2xs)',
+                      padding: '0.1rem 0.4rem',
+                      borderRadius: 'var(--radius-full)',
+                      backgroundColor: isActive ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                      color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                    }}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Search Box */}
@@ -86,61 +107,75 @@ export const ProjectsPage: React.FC = () => {
             style={{
               position: 'relative',
               width: '100%',
-              maxWidth: '320px',
+              maxWidth: '300px',
             }}
           >
             <Search
-              size={16}
+              size={15}
               style={{
                 position: 'absolute',
                 left: '12px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: 'var(--color-text-muted)',
+                pointerEvents: 'none',
               }}
             />
             <input
               type="text"
-              placeholder="Search by title, tag, stack..."
+              placeholder="Search stack, keyword, or title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="input"
               style={{
-                paddingLeft: '2.4rem',
-                paddingTop: '0.55rem',
-                paddingBottom: '0.55rem',
-                fontSize: 'var(--text-sm)',
+                paddingLeft: '2.35rem',
+                paddingRight: searchQuery ? '2rem' : '1rem',
+                fontSize: 'var(--text-xs)',
+                height: '38px',
               }}
-              aria-label="Search projects"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--color-text-muted)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                aria-label="Clear Search"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Project Cards Grid */}
+        {/* Projects Grid or Empty State */}
         {filteredProjects.length === 0 ? (
-          <div
-            className="card"
-            style={{
-              textAlign: 'center',
-              padding: 'var(--space-16) var(--space-4)',
-              color: 'var(--color-text-muted)',
-            }}
-          >
-            <p style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-2)' }}>
-              No projects found matching your search.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveCategory('All');
-                setSearchQuery('');
-              }}
-              className="btn btn-secondary btn-sm"
-              style={{ marginTop: 'var(--space-2)' }}
-            >
-              Reset Filters
-            </button>
-          </div>
+          <EmptyState
+            title="No projects found"
+            description={`No case studies match your search "${searchQuery}" in category "${activeCategory}".`}
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setActiveCategory('All');
+                }}
+                className="btn btn-secondary btn-sm"
+              >
+                Reset Filters
+              </button>
+            }
+          />
         ) : (
           <div
             style={{
@@ -150,136 +185,126 @@ export const ProjectsPage: React.FC = () => {
             }}
           >
             {filteredProjects.map((proj) => (
-              <div
+              <Card
                 key={proj.slug}
-                className="card hover-lift"
+                variant="default"
+                className="hover-lift"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  padding: 0,
-                  overflow: 'hidden',
+                  justifyContent: 'space-between',
                   background: 'var(--color-surface)',
+                  padding: 'var(--space-6)',
                 }}
               >
-                {/* Visual Header */}
-                <div
-                  style={{
-                    height: '210px',
-                    background: 'linear-gradient(135deg, #18233D 0%, #0B1020 100%)',
-                    borderBottom: '1px solid var(--color-border-subtle)',
-                    padding: 'var(--space-6)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="tag tag-subtle">{proj.category}</span>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--color-primary)',
-                      }}
-                    >
-                      {proj.status}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h2 style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-text-primary)' }}>
-                      {proj.title}
-                    </h2>
-                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
-                      Role: {proj.role} · {proj.timeline}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Content */}
-                <div
-                  style={{
-                    padding: 'var(--space-6)',
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div>
-                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
-                      {proj.oneLiner}
-                    </p>
-
-                    {/* Tech Stack */}
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '0.35rem',
-                        marginBottom: 'var(--space-6)',
-                      }}
-                    >
-                      {proj.tags.map((t) => (
-                        <span
-                          key={t}
-                          style={{
-                            fontSize: '0.72rem',
-                            fontFamily: 'var(--font-mono)',
-                            color: 'var(--color-text-muted)',
-                            background: 'rgba(255, 255, 255, 0.04)',
-                            padding: '0.2rem 0.5rem',
-                            borderRadius: 'var(--radius-sm)',
-                          }}
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
+                <div>
+                  {/* Category & Status Bar */}
                   <div
                     style={{
-                      paddingTop: 'var(--space-4)',
-                      borderTop: '1px solid var(--color-border-subtle)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 'var(--space-3)',
                     }}
                   >
-                    <Link
-                      to={`/projects/${proj.slug}`}
-                      className="btn btn-secondary"
-                      style={{ width: '100%' }}
-                    >
-                      Read In-Depth Case Study &rarr;
-                    </Link>
+                    <Badge variant="brand" size="sm">
+                      {proj.category}
+                    </Badge>
+                    <Badge variant="subtle" size="sm">
+                      {proj.status}
+                    </Badge>
+                  </div>
+
+                  <h2
+                    style={{
+                      fontSize: 'var(--text-xl)',
+                      marginBottom: 'var(--space-2)',
+                      letterSpacing: 'var(--tracking-tight)',
+                    }}
+                  >
+                    {proj.title}
+                  </h2>
+
+                  <p
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--color-text-secondary)',
+                      marginBottom: 'var(--space-5)',
+                      lineHeight: 'var(--leading-normal)',
+                    }}
+                  >
+                    {proj.oneLiner}
+                  </p>
+
+                  {/* Highlights Pill Strip */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: 'var(--space-6)' }}>
+                    {proj.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: 'var(--text-2xs)',
+                          color: 'var(--color-text-muted)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                          border: '1px solid var(--color-border-subtle)',
+                          padding: '0.2rem 0.55rem',
+                          borderRadius: 'var(--radius-sm)',
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </div>
+
+                <div
+                  style={{
+                    paddingTop: 'var(--space-4)',
+                    borderTop: '1px solid var(--color-border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Link
+                    to={`/projects/${proj.slug}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 600,
+                      color: 'var(--color-primary)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <span>Read Architecture Case Study</span>
+                    <ArrowRight size={14} />
+                  </Link>
+
+                  {proj.liveUrl && (
+                    <a
+                      href={proj.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--color-text-muted)',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <span>Live App</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              </Card>
             ))}
           </div>
         )}
-
-        {/* Bottom Callout */}
-        <div
-          style={{
-            marginTop: 'var(--space-16)',
-            textAlign: 'center',
-            padding: 'var(--space-10)',
-            borderRadius: 'var(--radius-lg)',
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border-subtle)',
-          }}
-        >
-          <h3 style={{ fontSize: 'var(--text-2xl)', marginBottom: 'var(--space-2)' }}>
-            Need a similar application or technical architecture?
-          </h3>
-          <p style={{ marginInline: 'auto', marginBottom: 'var(--space-6)' }}>
-            I can build custom full-stack solutions with modern frontends, performant APIs, and practical AI integrations.
-          </p>
-          <Link to="/start-project" className="btn btn-primary">
-            <Sparkles size={16} />
-            Start Your Project Requirement &rarr;
-          </Link>
-        </div>
       </div>
     </div>
   );

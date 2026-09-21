@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, AlertCircle, ArrowLeft, Shield } from 'lucide-react';
+import { Lock, AlertCircle, ArrowLeft, Shield, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
+import { Card, Button, Input, Badge } from '../../components/ui';
 
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -46,33 +47,60 @@ export const AdminLoginPage: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '70vh',
+        minHeight: '75vh',
+        padding: 'var(--space-12) 0',
       }}
     >
-      <div className="container-form" style={{ maxWidth: '440px' }}>
+      <div className="container-form" style={{ maxWidth: '460px', width: '100%' }}>
         <Link
           to="/"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: 'var(--space-2)',
             fontSize: 'var(--text-xs)',
+            fontFamily: 'var(--font-mono)',
             color: 'var(--color-text-muted)',
             marginBottom: 'var(--space-6)',
+            textDecoration: 'none',
+            transition: 'color var(--duration-fast)',
           }}
         >
           <ArrowLeft size={14} /> Back to Public Site
         </Link>
 
-        <div className="card card-elevated" style={{ padding: 'var(--space-8)' }}>
+        <Card
+          variant="elevated"
+          padding="lg"
+          style={{
+            background: 'radial-gradient(ellipse at top, rgba(56, 189, 248, 0.07) 0%, #0E1627 75%)',
+            border: '1px solid rgba(56, 189, 248, 0.2)',
+            boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.05)',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Top subtle cyan accent strip */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, #38BDF8, #2DD4BF)',
+            }}
+          />
+
           <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
             <div
               style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(110, 231, 242, 0.1)',
-                border: '1px solid var(--color-border)',
+                width: '54px',
+                height: '54px',
+                borderRadius: 'var(--radius-lg)',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                boxShadow: '0 0 20px rgba(56, 189, 248, 0.15)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -80,87 +108,101 @@ export const AdminLoginPage: React.FC = () => {
                 margin: '0 auto var(--space-4) auto',
               }}
             >
-              <Shield size={24} />
+              <Shield size={26} />
             </div>
-            <h1 style={{ fontSize: 'var(--text-2xl)', marginBottom: '0.25rem' }}>
+
+            <Badge variant="brand" size="sm" style={{ marginBottom: 'var(--space-2)' }}>
+              Restricted Access Portal
+            </Badge>
+
+            <h1
+              style={{
+                fontSize: 'var(--text-2xl)',
+                fontWeight: 700,
+                color: 'var(--color-text-primary)',
+                letterSpacing: '-0.02em',
+                marginBottom: 'var(--space-1)',
+              }}
+            >
               Admin Sign In
             </h1>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
-              Private request review and project management
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', margin: 0 }}>
+              Lead management, scope estimations, and internal project records.
             </p>
           </div>
 
           {errorMessage && (
             <div
-              className="card"
               style={{
-                backgroundColor: 'var(--color-error-bg)',
-                borderColor: 'var(--color-error)',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: 'var(--radius-md)',
                 color: 'var(--color-error)',
+                padding: 'var(--space-3) var(--space-4)',
                 marginBottom: 'var(--space-6)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
+                gap: 'var(--space-3)',
                 fontSize: 'var(--text-xs)',
-                padding: 'var(--space-3)',
               }}
             >
-              <AlertCircle size={16} />
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="adm-email">
-                Admin Email
-              </label>
-              <input
-                id="adm-email"
-                type="email"
-                placeholder="nikhil42865@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="input"
-              />
-            </div>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <Input
+              id="adm-email"
+              label="Admin Account Email"
+              type="email"
+              placeholder="nikhil42865@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+            />
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="adm-pass">
-                Password
-              </label>
-              <input
-                id="adm-pass"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="input"
-              />
-            </div>
+            <Input
+              id="adm-pass"
+              label="Secure Password"
+              type="password"
+              placeholder="••••••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
 
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="btn btn-primary"
-              style={{ width: '100%', marginTop: 'var(--space-4)' }}
+              variant="primary"
+              size="lg"
+              isLoading={isLoading}
+              style={{ width: '100%', marginTop: 'var(--space-2)' }}
             >
-              {isLoading ? (
-                'Authenticating...'
-              ) : (
-                <>
-                  <Lock size={16} /> Sign In to Dashboard
-                </>
-              )}
-            </button>
+              <Lock size={16} /> Authenticate to Dashboard
+            </Button>
           </form>
 
-          <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: 'var(--space-6)', marginBottom: 0 }}>
-            Session is protected with secure HTTP-only cookie authentication.
-          </p>
-        </div>
+          <div
+            style={{
+              marginTop: 'var(--space-6)',
+              paddingTop: 'var(--space-4)',
+              borderTop: '1px solid var(--color-border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 'var(--space-2)',
+              fontSize: '11px',
+              color: 'var(--color-text-muted)',
+              textAlign: 'center',
+            }}
+          >
+            <CheckCircle2 size={13} style={{ color: 'var(--color-success)' }} />
+            Protected by HTTP-only secure cookie session &amp; rate limiting.
+          </div>
+        </Card>
       </div>
     </div>
   );

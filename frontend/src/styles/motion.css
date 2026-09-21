@@ -1,10 +1,10 @@
 :root {
   /* Motion Tokens */
   --duration-instant: 100ms;
-  --duration-fast: 180ms;
-  --duration-base: 280ms;
-  --duration-slow: 480ms;
-  --duration-hero: 650ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 380ms;
+  --duration-hero: 550ms;
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
@@ -25,7 +25,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -36,7 +36,7 @@
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-16px);
+    transform: translateY(-12px);
   }
   to {
     opacity: 1;
@@ -47,7 +47,7 @@
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(24px);
+    transform: translateX(18px);
   }
   to {
     opacity: 1;
@@ -58,7 +58,7 @@
 @keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(-24px);
+    transform: translateX(-18px);
   }
   to {
     opacity: 1;
@@ -69,7 +69,7 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.97);
   }
   to {
     opacity: 1;
@@ -77,14 +77,43 @@
   }
 }
 
-@keyframes ambientGlow {
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseGlow {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.35;
+    opacity: 1;
+    transform: scale(1);
   }
   50% {
-    transform: translate(15px, -15px) scale(1.08);
-    opacity: 0.55;
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulsePing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }
 
@@ -113,14 +142,29 @@
   animation: scaleIn var(--duration-base) var(--ease-emphasis) forwards;
 }
 
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
 /* Stagger Delays */
+.delay-50 { animation-delay: 50ms; }
 .delay-100 { animation-delay: 100ms; }
 .delay-150 { animation-delay: 150ms; }
 .delay-200 { animation-delay: 200ms; }
 .delay-250 { animation-delay: 250ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
 
 /* Interactive Hover Lift Card */
 .hover-lift {
@@ -131,9 +175,16 @@
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-border-active);
+  transform: translateY(-3px);
+  border-color: var(--color-border-hover);
   box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+.active-scale {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.active-scale:active {
+  transform: scale(0.98);
 }
 
 /* Reduced Motion Override */

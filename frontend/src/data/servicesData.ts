@@ -4,9 +4,12 @@ export interface ServiceItem {
   title: string;
   tagline: string;
   description: string;
+  timelineEstimate?: string;
+  pricingStarting?: string;
   deliverables: string[];
   exampleTasks: string[];
   technologies: string[];
+  whatINeedFromYou?: string[];
   proofProjectSlug: string;
   proofProjectTitle: string;
 }
@@ -19,6 +22,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     tagline: 'High-converting, responsive websites engineered for speed and clarity.',
     description:
       'From sleek modern landing pages to complete business websites, I build accessible, fast-loading digital storefronts that make a lasting impression and convert visitors into clients.',
+    timelineEstimate: '3–7 days',
+    pricingStarting: '₹5,000',
     deliverables: [
       'Custom responsive design tailored for mobile, tablet, and desktop',
       'SEO optimization, meta tags, and open-graph previews',
@@ -32,6 +37,11 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Redesign an outdated business website for better mobile conversions',
     ],
     technologies: ['HTML5', 'Vanilla CSS', 'TypeScript', 'Vite', 'SEO & Performance'],
+    whatINeedFromYou: [
+      'Brand assets, logo, and preferred color palette',
+      'Page copy, headings, and high-level messaging goals',
+      'Domain or hosting access (if deploying to live custom domain)',
+    ],
     proofProjectSlug: 'primebasket',
     proofProjectTitle: 'PrimeBasket E-Commerce',
   },
@@ -42,6 +52,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     tagline: 'Scalable, component-driven single-page applications and interactive dashboards.',
     description:
       'I engineer performant React applications using strict TypeScript, clean architecture, and modular components that are easy to maintain, scale, and test.',
+    timelineEstimate: '1–3 weeks',
+    pricingStarting: '₹12,000',
     deliverables: [
       'Interactive single-page applications with smooth routing',
       'Data-dense dashboards with charts, filters, and real-time updates',
@@ -55,6 +67,11 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Integrate frontend applications with REST or GraphQL APIs',
     ],
     technologies: ['React', 'TypeScript', 'React Router', 'CSS Modules', 'Vitest'],
+    whatINeedFromYou: [
+      'API specification or mock endpoints',
+      'UI/UX wireframes or product functional requirements',
+      'Target user persona and key user interaction flows',
+    ],
     proofProjectSlug: 'interviewforge-ai',
     proofProjectTitle: 'InterviewForgeAI',
   },
@@ -65,6 +82,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     tagline: 'Reliable Node.js & Express REST APIs with secure MongoDB data architecture.',
     description:
       'I build secure, production-ready server applications with strict input validation, resilient database schemas, rate limiting, and structured logging.',
+    timelineEstimate: '1–3 weeks',
+    pricingStarting: '₹10,000',
     deliverables: [
       'RESTful API architecture with Zod schema validation',
       'Secure authentication via HTTP-only session cookies and JWT',
@@ -78,6 +97,11 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Optimize database queries and add indexing for fast response times',
     ],
     technologies: ['Node.js', 'Express', 'TypeScript', 'MongoDB', 'Mongoose', 'Zod'],
+    whatINeedFromYou: [
+      'Business entity model and required data fields',
+      'Authentication rules and role permissions definition',
+      'Database connection or cloud hosting environment access',
+    ],
     proofProjectSlug: 'lost-item-recovery',
     proofProjectTitle: 'Lost Item Recovery Platform',
   },
@@ -88,6 +112,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     tagline: 'Integrate LLMs, document analysis, and smart workflows into web products.',
     description:
       'I bring practical AI capabilities to software applications—including automated document analysis, resume parsing, conversational assistants, and structured scoring pipelines.',
+    timelineEstimate: '1–4 weeks',
+    pricingStarting: '₹15,000',
     deliverables: [
       'OpenAI, Anthropic, and Gemini API integration',
       'Document parsing, entity extraction, and text summarization',
@@ -101,6 +127,11 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Implement prompt evaluation pipelines with fallback handling',
     ],
     technologies: ['LLM APIs', 'Prompt Engineering', 'LangChain/RAG Concepts', 'Python', 'Node.js'],
+    whatINeedFromYou: [
+      'Sample inputs and expected structured output formats',
+      'API keys or preferred LLM provider accounts',
+      'Specific domain criteria, prompt edge cases, and rubrics',
+    ],
     proofProjectSlug: 'interviewforge-ai',
     proofProjectTitle: 'InterviewForgeAI',
   },
@@ -111,6 +142,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     tagline: 'Fast debugging, responsive UI troubleshooting, and zero-downtime deployment.',
     description:
       'Got a stubborn bug, a broken mobile layout, or a deployment that fails at the finish line? I diagnose issues systematically and get your software running smoothly.',
+    timelineEstimate: '1–3 days',
+    pricingStarting: '₹3,000',
     deliverables: [
       'Root-cause diagnosis for frontend and backend runtime bugs',
       'Fixing broken mobile layouts, overflow glitches, and responsiveness',
@@ -124,6 +157,11 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Configure environment variables and deploy applications safely',
     ],
     technologies: ['Debugging', 'DevOps', 'Vercel', 'Render', 'Docker Basics', 'Git'],
+    whatINeedFromYou: [
+      'Access to Git repository or code archive',
+      'Detailed reproduction steps and error logs/screenshots',
+      'Hosting dashboard or environment variable credentials',
+    ],
     proofProjectSlug: 'parkiscan',
     proofProjectTitle: 'ParkiScan Project',
   },

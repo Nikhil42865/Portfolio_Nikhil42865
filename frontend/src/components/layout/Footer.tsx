@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, MessageSquare, Mail, Shield, Lock } from 'lucide-react';
+import { Github, Linkedin, MessageSquare, Mail, Lock } from 'lucide-react';
 import { SERVICES_DATA } from '../../data/servicesData';
 import { siteConfig } from '../../config/siteConfig';
+import { Badge } from '../ui/Badge';
 
 export const Footer: React.FC = () => {
   const whatsappUrl = siteConfig.getWhatsappUrl();
@@ -21,19 +22,19 @@ export const Footer: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: 'var(--space-10)',
             marginBottom: 'var(--space-12)',
           }}
         >
           {/* Brand Col */}
-          <div>
+          <div style={{ maxWidth: '340px' }}>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.65rem',
-                marginBottom: 'var(--space-4)',
+                marginBottom: 'var(--space-3)',
               }}
             >
               <div
@@ -41,7 +42,7 @@ export const Footer: React.FC = () => {
                   width: '34px',
                   height: '34px',
                   borderRadius: 'var(--radius-md)',
-                  background: 'linear-gradient(135deg, #18233D, #121A2E)',
+                  background: 'linear-gradient(135deg, #16233B, #0E1627)',
                   border: '1px solid var(--color-border)',
                   display: 'flex',
                   alignItems: 'center',
@@ -51,8 +52,8 @@ export const Footer: React.FC = () => {
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                    fontSize: '0.8rem',
                     color: 'var(--color-primary)',
                   }}
                 >
@@ -63,116 +64,69 @@ export const Footer: React.FC = () => {
                 style={{
                   fontFamily: 'var(--font-display)',
                   fontWeight: 700,
-                  fontSize: '1.1rem',
+                  fontSize: '1.05rem',
                   color: 'var(--color-text-primary)',
+                  letterSpacing: 'var(--tracking-tight)',
                 }}
               >
                 Nikhil Kumar
               </span>
             </div>
 
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
-              I build polished web applications, reliable APIs, and practical AI-powered products.
-              Turning requirements into reliable software.
+            <p
+              style={{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--color-text-secondary)',
+                marginBottom: 'var(--space-4)',
+                lineHeight: 'var(--leading-normal)',
+              }}
+            >
+              Full-Stack &amp; AI Product Engineer building fast, dependable web applications,
+              APIs, and practical AI integrations.
             </p>
 
-            {/* Availability Indicator */}
-            <div
+            {/* Live Availability Indicator */}
+            <Badge variant="success" dot pulseDot size="sm">
+              Available for Q2/Q3 Projects
+            </Badge>
+          </div>
+
+          {/* Core Services Links */}
+          <div>
+            <h4
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.35rem 0.75rem',
-                borderRadius: 'var(--radius-full)',
-                backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                border: '1px solid rgba(52, 211, 153, 0.25)',
                 fontSize: 'var(--text-xs)',
-                color: 'var(--color-success)',
-                fontWeight: 500,
-              }}
-            >
-              <span
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--color-success)',
-                  display: 'inline-block',
-                  boxShadow: '0 0 8px var(--color-success)',
-                }}
-              />
-              Available for new projects
-            </div>
-          </div>
-
-          {/* Navigation Links */}
-          <div>
-            <h4
-              style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: 'var(--color-text-primary)',
+                fontFamily: 'var(--font-mono)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.08em',
+                letterSpacing: 'var(--tracking-wider)',
+                color: 'var(--color-text-muted)',
                 marginBottom: 'var(--space-4)',
               }}
             >
-              Platform
+              Services
             </h4>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-              <li>
-                <Link to="/" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link to="/projects" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-                  Selected Projects
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-                  About & Skills
-                </Link>
-              </li>
-              <li>
-                <Link to="/start-project" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', fontWeight: 600 }}>
-                  Start a Project &rarr;
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Services Links */}
-          <div>
-            <h4
+            <ul
               style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: 'var(--color-text-primary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                marginBottom: 'var(--space-4)',
+                listStyle: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.65rem',
+                padding: 0,
+                margin: 0,
               }}
             >
-              Core Services
-            </h4>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-              {SERVICES_DATA.map((srv) => (
+              {SERVICES_DATA.slice(0, 5).map((srv) => (
                 <li key={srv.id}>
                   <Link
                     to={`/services#${srv.id}`}
-                    style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--color-text-secondary)',
+                      textDecoration: 'none',
+                      transition: 'color var(--duration-fast) var(--ease-standard)',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
                   >
                     {srv.title}
                   </Link>
@@ -181,19 +135,69 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Direct Channels */}
+          {/* Quick Navigation */}
           <div>
             <h4
               style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: 'var(--color-text-primary)',
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-mono)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.08em',
+                letterSpacing: 'var(--tracking-wider)',
+                color: 'var(--color-text-muted)',
                 marginBottom: 'var(--space-4)',
               }}
             >
-              Connect Directly
+              Navigation
+            </h4>
+            <ul
+              style={{
+                listStyle: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.65rem',
+                padding: 0,
+                margin: 0,
+              }}
+            >
+              {[
+                { name: 'Projects Showcase', path: '/projects' },
+                { name: 'About & Skills', path: '/about' },
+                { name: 'Start a Project', path: '/start-project' },
+                { name: 'Direct Contact', path: '/contact' },
+                { name: 'Privacy Policy', path: '/privacy' },
+              ].map((item) => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--color-text-secondary)',
+                      textDecoration: 'none',
+                      transition: 'color var(--duration-fast) var(--ease-standard)',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Direct Channels & Social */}
+          <div>
+            <h4
+              style={{
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-mono)',
+                textTransform: 'uppercase',
+                letterSpacing: 'var(--tracking-wider)',
+                color: 'var(--color-text-muted)',
+                marginBottom: 'var(--space-4)',
+              }}
+            >
+              Get In Touch
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <a
@@ -201,64 +205,104 @@ export const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.65rem',
+                  gap: '0.5rem',
                   fontSize: 'var(--text-sm)',
                   color: 'var(--color-text-secondary)',
+                  textDecoration: 'none',
+                  transition: 'color var(--duration-fast) var(--ease-standard)',
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#25D366')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
               >
                 <MessageSquare size={16} style={{ color: '#25D366' }} />
-                WhatsApp Message
+                <span>+91 6202591561</span>
               </a>
+
               <a
-                href={`mailto:${siteConfig.contact.email}`}
+                href="mailto:nikhil42865@gmail.com"
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.65rem',
+                  gap: '0.5rem',
                   fontSize: 'var(--text-sm)',
                   color: 'var(--color-text-secondary)',
+                  textDecoration: 'none',
+                  transition: 'color var(--duration-fast) var(--ease-standard)',
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-primary)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
               >
                 <Mail size={16} style={{ color: 'var(--color-primary)' }} />
-                {siteConfig.contact.email}
+                <span>nikhil42865@gmail.com</span>
               </a>
-              <a
-                href={siteConfig.social.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--color-text-secondary)',
-                }}
-              >
-                <Github size={16} />
-                GitHub Profile
-              </a>
-              <a
-                href={siteConfig.social.linkedin.startsWith('http') ? siteConfig.social.linkedin : `https://${siteConfig.social.linkedin}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--color-text-secondary)',
-                }}
-              >
-                <Linkedin size={16} style={{ color: '#0077B5' }} />
-                LinkedIn Profile
-              </a>
+
+              {/* Social Icon Pills */}
+              <div style={{ display: 'flex', gap: '0.65rem', marginTop: 'var(--space-2)' }}>
+                <a
+                  href="https://github.com/nikhil42865"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub Profile"
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid var(--color-border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-text-secondary)',
+                    transition: 'all var(--duration-fast) var(--ease-standard)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--color-text-primary)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
+                  }}
+                >
+                  <Github size={17} />
+                </a>
+
+                <a
+                  href="https://linkedin.com/in/nikhil42865"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn Profile"
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid var(--color-border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-text-secondary)',
+                    transition: 'all var(--duration-fast) var(--ease-standard)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--color-text-primary)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
+                  }}
+                >
+                  <Linkedin size={17} />
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Sub-footer */}
         <div
           style={{
             paddingTop: 'var(--space-6)',
@@ -273,35 +317,38 @@ export const Footer: React.FC = () => {
           }}
         >
           <div>
-            &copy; {new Date().getFullYear()} Nikhil Kumar. Built with React & TypeScript. All rights reserved.
+            &copy; {new Date().getFullYear()} Nikhil Kumar. All rights reserved.
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <Link
               to="/privacy"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
                 color: 'var(--color-text-muted)',
+                textDecoration: 'none',
+                transition: 'color var(--duration-fast)',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
             >
-              <Shield size={13} />
               Privacy Policy
             </Link>
 
             <Link
               to="/admin/login"
               style={{
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
                 color: 'var(--color-text-muted)',
-                opacity: 0.7,
+                textDecoration: 'none',
+                transition: 'color var(--duration-fast)',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
             >
               <Lock size={12} />
-              Admin
+              <span>Admin</span>
             </Link>
           </div>
         </div>

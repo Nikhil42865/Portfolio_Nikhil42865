@@ -19,6 +19,7 @@ export interface CaseStudy {
   challengesSolved: string;
   results: string;
   liveDemoUrl?: string;
+  liveUrl?: string;
   githubUrl?: string;
   relatedServiceTitle: string;
   relatedServiceFormValue: string;
@@ -70,6 +71,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     results:
       'Successfully simulated over 150+ mock interview sessions during beta testing with an average user satisfaction score of 4.8/5.',
     liveDemoUrl: 'https://github.com/Nikhil42865',
+    liveUrl: 'https://github.com/Nikhil42865',
     githubUrl: 'https://github.com/Nikhil42865',
     relatedServiceTitle: 'AI Integration & React Development',
     relatedServiceFormValue: 'AI Integration',
@@ -113,6 +115,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     results:
       'Achieved 88.4% classification accuracy on clinical benchmark drawing datasets with instantaneous report generation.',
     liveDemoUrl: 'https://github.com/Nikhil42865',
+    liveUrl: 'https://github.com/Nikhil42865',
     githubUrl: 'https://github.com/Nikhil42865',
     relatedServiceTitle: 'AI Integration & Full-Stack Engineering',
     relatedServiceFormValue: 'AI Integration',
@@ -156,6 +159,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     results:
       'Showcased at a regional hackathon; cut median simulated item retrieval time from several days to under 3 hours.',
     liveDemoUrl: 'https://github.com/Nikhil42865',
+    liveUrl: 'https://github.com/Nikhil42865',
     githubUrl: 'https://github.com/Nikhil42865',
     relatedServiceTitle: 'Backend & API Development',
     relatedServiceFormValue: 'Backend/API Development',
@@ -199,6 +203,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     results:
       'Achieved a 98/100 Lighthouse performance score with under 1.2s Largest Contentful Paint (LCP) across mobile devices.',
     liveDemoUrl: 'https://github.com/Nikhil42865',
+    liveUrl: 'https://github.com/Nikhil42865',
     githubUrl: 'https://github.com/Nikhil42865',
     relatedServiceTitle: 'Website & React Development',
     relatedServiceFormValue: 'Website Development',
